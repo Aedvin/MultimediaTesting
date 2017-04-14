@@ -4,9 +4,7 @@ import feec.vutbr.cz.multimediatesting.Contract.ConnectionFragmentContract;
 import feec.vutbr.cz.multimediatesting.Factory.ModelFactory;
 import feec.vutbr.cz.multimediatesting.Listener.DataActionListener;
 
-/**
- * Created by alda on 1.3.17.
- */
+
 public class ConnectionFragmentModel extends Thread implements ConnectionFragmentContract.Model, DataActionListener {
 
 
@@ -89,6 +87,13 @@ public class ConnectionFragmentModel extends Thread implements ConnectionFragmen
     public void onData(byte[] buffer) {
         if (mListener != null) {
             mListener.onData(buffer);
+        }
+    }
+
+    @Override
+    public void onFinish() {
+        if (mListener != null) {
+            mListener.onFinish();
         }
     }
 

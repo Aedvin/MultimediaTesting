@@ -3,18 +3,18 @@ package feec.vutbr.cz.multimediatesting.Contract;
 import feec.vutbr.cz.multimediatesting.Listener.BaseActionListener;
 import feec.vutbr.cz.multimediatesting.Listener.DataActionListener;
 import feec.vutbr.cz.multimediatesting.Model.BaseModel;
+import feec.vutbr.cz.multimediatesting.Model.Packet;
 import feec.vutbr.cz.multimediatesting.Presenter.BasePresenter;
 import feec.vutbr.cz.multimediatesting.View.BaseView;
 
-/**
- * Created by alda on 1.3.17.
- */
+import java.util.ArrayList;
+
 public interface ConnectionFragmentContract {
 
     interface View extends BaseView {
-        void hideButton();
+        void hideStartButton();
 
-        void showButton();
+        void showStartButton();
 
         void hideLoading();
 
@@ -25,12 +25,30 @@ public interface ConnectionFragmentContract {
         void startTimer();
 
         void stopTimer();
+
+        void showSaveButton();
+
+        void hideSaveButton();
+
+        void showResultButton();
+
+        void hideResultButton();
+
+        void initView();
     }
 
     interface Presenter extends BasePresenter<View> {
         void onStartMeasure();
 
         void onSendNewPacket();
+
+        void setSavedSettings(ConnectionFragmentContract.Settings settings);
+
+        void setDatabaseConnection(ConnectionFragmentContract.DatabaseModel database);
+
+        void onViewRequest();
+
+        long onRequestLastMeasurementId();
     }
 
     interface Model extends BaseModel {
@@ -52,13 +70,24 @@ public interface ConnectionFragmentContract {
 
         void addReceived(byte[] buffer);
 
-        int getNumOfSent();
+        ArrayList<Packet> getSent();
 
-        int getNumOfReceived();
+        ArrayList<Packet> getReceived();
 
         int getPercentSent(int packetCount);
 
         int getPercentReceived(int packetCount);
+
+    }
+
+    interface DatabaseModel extends BaseModel {
+        long insertData(ConnectionFragmentContract.PacketModel packets);
+    }
+
+    interface Settings extends BaseModel {
+        int getPacketSize();
+
+        int getPacketCount();
     }
 
 

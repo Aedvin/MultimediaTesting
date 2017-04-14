@@ -6,15 +6,21 @@ import feec.vutbr.cz.multimediatesting.Presenter.BasePresenter;
 import feec.vutbr.cz.multimediatesting.View.BaseView;
 
 public interface MainActivityContract {
-    public interface View extends BaseView {
+    interface View extends BaseView {
         void beginTransition(int position);
+
+        void showConfig();
+
+        void showHistory();
     }
 
-    public interface Presenter extends BasePresenter<View> {
-        void onTransitionRequest(int currentPosition);
+    interface Presenter extends BasePresenter<View> {
+        void onConfigClick();
+
+        void onHistoryClick();
     }
 
-    public interface Model extends BaseModel {
+    interface Model extends BaseModel {
 
     }
 }

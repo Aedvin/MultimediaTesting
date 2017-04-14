@@ -9,32 +9,31 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.Loader;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import feec.vutbr.cz.multimediatesting.Contract.ConnectionFragmentContract;
 import feec.vutbr.cz.multimediatesting.Loader.PresenterLoader;
+import feec.vutbr.cz.multimediatesting.Model.Database;
+import feec.vutbr.cz.multimediatesting.Model.SavedSettings;
 import feec.vutbr.cz.multimediatesting.Presenter.ConnectionFragmentPresenter;
 import feec.vutbr.cz.multimediatesting.R;
 import feec.vutbr.cz.multimediatesting.databinding.ConnectionFragmentBinding;
 
 
-/**
- * Created by alda on 2.3.17.
- */
 public class ConnectionFragment extends Fragment implements ConnectionFragmentContract.View, LoaderManager.LoaderCallbacks<ConnectionFragmentContract.Presenter>, Runnable {
 
     private static final int LOADER_ID = 2;
 
-    private static final int POSITION = 1;
 
     private ConnectionFragmentBinding mBind;
     private ConnectionFragmentContract.Presenter mPresenter;
 
     private Handler mPacketTimer;
     private HandlerThread mHandlerThread;
-    private boolean mPacketTimerRunning;
-    private int mPacketDelay = 10;
+    private volatile boolean mPacketTimerRunning;
+    private int mPacketDelay = 50;
 
 
     @Nullable
@@ -48,9 +47,6 @@ public class ConnectionFragment extends Fragment implements ConnectionFragmentCo
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         getLoaderManager().initLoader(LOADER_ID, null, this);
-        mHandlerThread = new HandlerThread("PacketHandler");
-        mHandlerThread.start();
-        mPacketTimer = new Handler(mHandlerThread.getLooper());
 
     }
 
@@ -59,13 +55,20 @@ public class ConnectionFragment extends Fragment implements ConnectionFragmentCo
     public void onResume() {
         super.onResume();
         mPresenter.onAttachView(this);
+        mPresenter.setSavedSettings(new SavedSettings(getActivity().getApplicationContext()));
+        mPresenter.setDatabaseConnection(new Database(getActivity().getApplicationContext()));
         mBind.setPresenter(mPresenter);
+        mHandlerThread = new HandlerThread("PacketHandler");
+        mHandlerThread.start();
+        mPacketTimer = new Handler(mHandlerThread.getLooper());
     }
 
     @Override
     public void onPause() {
         super.onPause();
         mPresenter.onDetachView();
+        mHandlerThread.quit();
+        mPacketTimer = null;
     }
 
     @Override
@@ -92,12 +95,12 @@ public class ConnectionFragment extends Fragment implements ConnectionFragmentCo
 
 
     @Override
-    public void hideButton() {
+    public void hideStartButton() {
         mBind.btnStart.setVisibility(View.GONE);
     }
 
     @Override
-    public void showButton() {
+    public void showStartButton() {
         mBind.btnStart.setVisibility(View.VISIBLE);
     }
 
@@ -131,6 +134,36 @@ public class ConnectionFragment extends Fragment implements ConnectionFragmentCo
     public void stopTimer() {
         mPacketTimerRunning = false;
         mPacketTimer.removeCallbacks(this);
+    }
+
+    @Override
+    public void showSaveButton() {
+        mBind.btnSave.setVisibility(View.VISIBLE);
+    }
+
+    @Override
+    public void hideSaveButton() {
+        mBind.btnSave.setVisibility(View.GONE);
+    }
+
+    @Override
+    public void showResultButton() {
+        mBind.btnResult.setVisibility(View.VISIBLE);
+    }
+
+    @Override
+    public void hideResultButton() {
+        mBind.btnResult.setVisibility(View.GONE);
+    }
+
+    @Override
+    public void initView() {
+        getActivity().runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                mPresenter.onViewRequest();
+            }
+        });
     }
 
     @Override

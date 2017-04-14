@@ -1,11 +1,10 @@
 package feec.vutbr.cz.multimediatesting.Model;
 
+import android.util.Log;
+
 import java.nio.ByteBuffer;
 import java.util.Arrays;
 
-/**
- * Created by alda on 3.3.17.
- */
 public class Packet implements Comparable<Packet> {
     private int mSeqNum;
     private long mTimeStamp;

@@ -1,6 +1,7 @@
 package feec.vutbr.cz.multimediatesting.View;
 
 
+import android.content.Intent;
 import android.databinding.DataBindingUtil;
 import android.os.Bundle;
 import android.support.v4.app.FragmentTransaction;
@@ -10,18 +11,18 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
 import android.view.MenuItem;
 import feec.vutbr.cz.multimediatesting.Adapter.FragmentAdapter;
-import feec.vutbr.cz.multimediatesting.Contract.FragmentActivityContract;
 import feec.vutbr.cz.multimediatesting.Contract.MainActivityContract;
 import feec.vutbr.cz.multimediatesting.Loader.PresenterLoader;
 import feec.vutbr.cz.multimediatesting.Presenter.MainActivityPresenter;
 import feec.vutbr.cz.multimediatesting.R;
 import feec.vutbr.cz.multimediatesting.databinding.ActivityMainBinding;
+import feec.vutbr.cz.multimediatesting.databinding.ActivitySettingsBinding;
 
 public class MainActivity extends AppCompatActivity implements
-        MainActivityContract.View, LoaderManager.LoaderCallbacks<MainActivityContract.Presenter>,
-        FragmentActivityContract.Activity {
+        MainActivityContract.View, LoaderManager.LoaderCallbacks<MainActivityContract.Presenter> {
 
     private static final int LOADER_ID = 1;
+    private static final int HISTORY_CODE = 1;
 
     private ActivityMainBinding mBind;
     private MainActivityContract.Presenter mPresenter;
@@ -55,7 +56,9 @@ public class MainActivity extends AppCompatActivity implements
 
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
-            return true;
+            mPresenter.onConfigClick();
+        } else if (id == R.id.action_history) {
+            mPresenter.onHistoryClick();
         }
 
         return super.onOptionsItemSelected(item);
@@ -97,7 +100,22 @@ public class MainActivity extends AppCompatActivity implements
     }
 
     @Override
-    public void requestTransition(int currentPosition) {
-        mPresenter.onTransitionRequest(currentPosition);
+    public void showConfig() {
+        Intent i = new Intent(this, SettingsActivity.class);
+        startActivity(i);
+    }
+
+    @Override
+    public void showHistory() {
+        Intent i = new Intent(this, HistoryActivity.class);
+        startActivityForResult(i, HISTORY_CODE);
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (requestCode == HISTORY_CODE && resultCode == RESULT_OK) {
+            //informuj presenter
+
+        }
     }
 }

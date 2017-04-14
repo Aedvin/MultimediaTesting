@@ -1,20 +1,20 @@
 package feec.vutbr.cz.multimediatesting.Model;
 
+import android.util.Log;
 import feec.vutbr.cz.multimediatesting.Listener.DataActionListener;
 
 import java.io.IOException;
 import java.net.*;
 import java.util.Arrays;
 
-/**
- * Created by alda on 1.3.17.
- */
+
 public class SocketThread extends Thread {
 
+    private volatile boolean mRunning;
+    private volatile boolean mLastPacket;
+
     private DatagramSocket mSocket;
-    private boolean mRunning;
     private DataActionListener mListener;
-    private boolean mLastPacket;
 
     private String mHost;
     private int mPort;
@@ -22,7 +22,6 @@ public class SocketThread extends Thread {
     private final Object mLock = new Object();
 
     private final static int NORMAL_TIMEOUT = 500;
-    private final static int LAST_TIMEOUT = 1000;
     private final static int MAX_TRY_COUNT = 5;
     private final static int MAX_PACKET_SIZE = 1024;
 
@@ -60,8 +59,8 @@ public class SocketThread extends Thread {
 
         try {
             mSocket = new DatagramSocket();
-            mSocket.connect(InetAddress.getByName(mHost), mPort);
             mSocket.setSoTimeout(NORMAL_TIMEOUT);
+
             publishSuccess();
         } catch (IOException e) {
             mRunning = false;
@@ -92,11 +91,12 @@ public class SocketThread extends Thread {
         }
 
         try {
-            mSocket.disconnect();
             mSocket.close();
         } catch (Exception e) {
             mRunning = false;
         }
+
+        publishFinish();
 
     }
 
@@ -108,17 +108,8 @@ public class SocketThread extends Thread {
         mRunning = false;
     }
 
-    public int getServePort() {
-        return mSocket.getPort();
-    }
-
     public void setLastPacket() {
         mLastPacket = true;
-        try {
-            mSocket.setSoTimeout(LAST_TIMEOUT);
-        } catch (SocketException e) {
-            publishError(e.getMessage());
-        }
     }
 
     private void publishError(String message) {
@@ -136,6 +127,12 @@ public class SocketThread extends Thread {
     private void publishSuccess() {
         if (mListener != null) {
             mListener.onSuccess();
+        }
+    }
+
+    private void publishFinish() {
+        if (mListener != null) {
+            mListener.onFinish();
         }
     }
 }

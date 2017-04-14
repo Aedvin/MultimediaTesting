@@ -6,22 +6,22 @@ import feec.vutbr.cz.multimediatesting.Contract.MainActivityContract;
 import feec.vutbr.cz.multimediatesting.Factory.ModelFactory;
 import feec.vutbr.cz.multimediatesting.Factory.PresenterFactory;
 
-/**
- * Created by alda on 1.3.17.
- */
 public class MainActivityPresenter implements MainActivityContract.Presenter {
 
     private MainActivityContract.View mView;
-
+    private boolean mLoaded;
 
     public MainActivityPresenter() {
-
+        mLoaded = false;
     }
 
     @Override
     public void onAttachView(@NonNull MainActivityContract.View view) {
         mView = view;
-        mView.beginTransition(1);
+        if (!mLoaded) {
+            mView.beginTransition(1);
+            mLoaded = true;
+        }
     }
 
     @Override
@@ -34,9 +34,19 @@ public class MainActivityPresenter implements MainActivityContract.Presenter {
 
     }
 
+
     @Override
-    public void onTransitionRequest(int currentPosition) {
-        mView.beginTransition(currentPosition + 1);
+    public void onConfigClick() {
+        if (mView != null) {
+            mView.showConfig();
+        }
+    }
+
+    @Override
+    public void onHistoryClick() {
+        if (mView != null) {
+            mView.showHistory();
+        }
     }
 
 
