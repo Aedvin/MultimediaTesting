@@ -1,10 +1,7 @@
 package feec.vutbr.cz.multimediatesting.Presenter;
 
 import android.support.annotation.NonNull;
-import android.util.Log;
 import feec.vutbr.cz.multimediatesting.Contract.ConnectionFragmentContract;
-import feec.vutbr.cz.multimediatesting.Contract.MainActivityContract;
-import feec.vutbr.cz.multimediatesting.Contract.SettingsActivityContract;
 import feec.vutbr.cz.multimediatesting.Factory.PresenterFactory;
 import feec.vutbr.cz.multimediatesting.Model.ConnectionFragmentModel;
 import feec.vutbr.cz.multimediatesting.Model.MeasuredPackets;
@@ -20,11 +17,13 @@ public class ConnectionFragmentPresenter implements ConnectionFragmentContract.P
     private ConnectionFragmentContract.DatabaseModel mDatabase;
 
     private boolean mFinished;
-    private boolean mError;
+    private volatile boolean mError;
+    private String mLastError;
     private int mPacketSeqNum;
     private int mPacketCount;
     private int mPacketSize;
     private long mLastMeasureId;
+    private String mServerAddress;
 
     public ConnectionFragmentPresenter() {
         ConnectionFragmentModel.Factory factory = new ConnectionFragmentModel.Factory();
@@ -46,6 +45,7 @@ public class ConnectionFragmentPresenter implements ConnectionFragmentContract.P
         mView = null;
         mModel.removeListener();
         mModel.onDestroy();
+        mDatabase.close();
         mSettings = null;
         mDatabase = null;
     }
@@ -61,8 +61,8 @@ public class ConnectionFragmentPresenter implements ConnectionFragmentContract.P
         mError = true;
         mModel.onDestroy();
         mView.stopTimer();
-        mView.postInfo(message);
         mView.initView();
+        mLastError = message;
     }
 
     @Override
@@ -75,6 +75,7 @@ public class ConnectionFragmentPresenter implements ConnectionFragmentContract.P
 
     @Override
     public void onStartMeasure() {
+        mModel.setServerAddress(mServerAddress);
         mModel.onStart();
         mPacketSeqNum = 0;
         mFinished = false;
@@ -87,18 +88,16 @@ public class ConnectionFragmentPresenter implements ConnectionFragmentContract.P
 
     @Override
     public void onSendNewPacket() {
-        if (!mError) {
-            mModel.sendData(mPackets.getSend(mPacketSeqNum));
-            mPacketSeqNum++;
-            if (mView != null && mPacketCount % 10 == 0) {
-                mView.postInfo(String.format(Locale.getDefault(), "Sent %d%%\n  Received %d%%", mPackets.getPercentSent(mPacketCount), mPackets.getPercentReceived(mPacketCount)));
+        mModel.sendData(mPackets.getSend(mPacketSeqNum));
+        mPacketSeqNum++;
+        if (mView != null && mPacketCount % 10 == 0 && !mError) {
+            mView.postInfo(String.format(Locale.getDefault(), "Sent %d%%\n  Received %d%%", mPackets.getPercentSent(mPacketCount), mPackets.getPercentReceived(mPacketCount)));
+        }
+        if (mPacketSeqNum >= mPacketCount) {
+            if (mView != null) {
+                mView.stopTimer();
             }
-            if (mPacketSeqNum >= mPacketCount) {
-                if (mView != null) {
-                    mView.stopTimer();
-                }
-                mModel.setLastPacket();
-            }
+            mModel.setLastPacket();
         }
     }
 
@@ -107,6 +106,7 @@ public class ConnectionFragmentPresenter implements ConnectionFragmentContract.P
         mSettings = settings;
         mPacketCount = mSettings.getPacketCount();
         mPacketSize = mSettings.getPacketSize();
+        mServerAddress = mSettings.getServerAddress();
     }
 
     @Override
@@ -120,9 +120,10 @@ public class ConnectionFragmentPresenter implements ConnectionFragmentContract.P
         initView();
     }
 
+
     @Override
-    public long onRequestLastMeasurementId() {
-        return mLastMeasureId;
+    public void onShowResultsClick() {
+        mView.showResults(mLastMeasureId);
     }
 
     @Override
@@ -149,13 +150,15 @@ public class ConnectionFragmentPresenter implements ConnectionFragmentContract.P
 
     private void initView() {
         if (mView != null) {
-            if (mFinished) {
+            if (mFinished && !mError) {
                 mView.hideLoading();
                 mView.showStartButton();
                 mView.showResultButton();
-                mView.showSaveButton();
+            } else if (mError) {
+                mView.showStartButton();
+                mView.postInfo(mLastError);
+                mView.hideLoading();
             } else {
-                mView.hideSaveButton();
                 mView.hideResultButton();
                 mView.hideLoading();
             }

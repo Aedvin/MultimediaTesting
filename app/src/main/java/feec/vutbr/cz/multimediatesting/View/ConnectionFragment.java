@@ -1,7 +1,7 @@
 package feec.vutbr.cz.multimediatesting.View;
 
+import android.content.Intent;
 import android.databinding.DataBindingUtil;
-import android.opengl.Visibility;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.HandlerThread;
@@ -9,7 +9,6 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.Loader;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -137,16 +136,6 @@ public class ConnectionFragment extends Fragment implements ConnectionFragmentCo
     }
 
     @Override
-    public void showSaveButton() {
-        mBind.btnSave.setVisibility(View.VISIBLE);
-    }
-
-    @Override
-    public void hideSaveButton() {
-        mBind.btnSave.setVisibility(View.GONE);
-    }
-
-    @Override
     public void showResultButton() {
         mBind.btnResult.setVisibility(View.VISIBLE);
     }
@@ -164,6 +153,13 @@ public class ConnectionFragment extends Fragment implements ConnectionFragmentCo
                 mPresenter.onViewRequest();
             }
         });
+    }
+
+    @Override
+    public void showResults(long id) {
+        Intent i = new Intent(getActivity().getApplicationContext(), GraphActivity.class);
+        i.putExtra("id", id);
+        getActivity().startActivity(i);
     }
 
     @Override

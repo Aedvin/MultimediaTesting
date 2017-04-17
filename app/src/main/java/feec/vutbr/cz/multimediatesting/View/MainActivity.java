@@ -16,13 +16,11 @@ import feec.vutbr.cz.multimediatesting.Loader.PresenterLoader;
 import feec.vutbr.cz.multimediatesting.Presenter.MainActivityPresenter;
 import feec.vutbr.cz.multimediatesting.R;
 import feec.vutbr.cz.multimediatesting.databinding.ActivityMainBinding;
-import feec.vutbr.cz.multimediatesting.databinding.ActivitySettingsBinding;
 
 public class MainActivity extends AppCompatActivity implements
         MainActivityContract.View, LoaderManager.LoaderCallbacks<MainActivityContract.Presenter> {
 
     private static final int LOADER_ID = 1;
-    private static final int HISTORY_CODE = 1;
 
     private ActivityMainBinding mBind;
     private MainActivityContract.Presenter mPresenter;
@@ -108,14 +106,7 @@ public class MainActivity extends AppCompatActivity implements
     @Override
     public void showHistory() {
         Intent i = new Intent(this, HistoryActivity.class);
-        startActivityForResult(i, HISTORY_CODE);
+        startActivity(i);
     }
 
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (requestCode == HISTORY_CODE && resultCode == RESULT_OK) {
-            //informuj presenter
-
-        }
-    }
 }

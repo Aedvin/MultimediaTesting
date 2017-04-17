@@ -14,9 +14,14 @@
             android:textStyle="bold" android:textColor="@color/colorAccent"/>
     <ImageView
             android:layout_width="match_parent"
+            android:layout_height="match_parent" app:srcCompat="@android:drawable/ic_menu_save"
+            android:layout_weight="3.5" android:contentDescription="@string/empty_text"
+            android:id="@+id/historyItemSave"/>
+    <ImageView
+            android:layout_width="match_parent"
             android:layout_height="match_parent" app:srcCompat="@android:drawable/ic_menu_delete"
             android:id="@+id/historyItemDelete"
-            android:layout_weight="5"
+            android:layout_weight="3.5"
             android:contentDescription="@string/empty_text"
     />
 </LinearLayout>

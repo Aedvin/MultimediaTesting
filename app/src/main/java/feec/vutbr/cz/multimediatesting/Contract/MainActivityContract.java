@@ -12,12 +12,14 @@ public interface MainActivityContract {
         void showConfig();
 
         void showHistory();
+
     }
 
     interface Presenter extends BasePresenter<View> {
         void onConfigClick();
 
         void onHistoryClick();
+
     }
 
     interface Model extends BaseModel {

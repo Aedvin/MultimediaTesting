@@ -33,6 +33,11 @@
                 android:label="@string/title_activity_history"
                 android:theme="@style/AppTheme.NoActionBar">
         </activity>
+        <activity
+                android:name=".View.GraphActivity"
+                android:label="@string/title_activity_graph"
+                android:theme="@style/AppTheme.NoActionBar">
+        </activity>
     </application>
 
 </manifest>

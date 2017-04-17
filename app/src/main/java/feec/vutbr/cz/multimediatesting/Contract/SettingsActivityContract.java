@@ -11,6 +11,8 @@ public interface SettingsActivityContract {
         void setPacketSize(String packetSize);
 
         void setPacketCount(String packetCount);
+
+        void setServerAddress(String address);
     }
 
     interface Presenter extends BasePresenter<View> {
@@ -20,6 +22,8 @@ public interface SettingsActivityContract {
 
         void onPacketCountChange(String packetCount);
 
+        void onServerAddressChange(String address);
+
         void setSavedSettings(Settings settings);
     }
 
@@ -27,6 +31,10 @@ public interface SettingsActivityContract {
         void savePacketSize(int packetSize);
 
         void savePacketCount(int packetCount);
+
+        void saveServerAddress(String serverAddress);
+
+        String getServerAddress();
 
         int getPacketSize();
 

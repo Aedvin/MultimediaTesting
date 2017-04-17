@@ -8,24 +8,26 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.net.ConnectivityManager;
 import android.net.wifi.WifiManager;
+import android.support.v4.util.ArrayMap;
 import android.telephony.TelephonyManager;
 import feec.vutbr.cz.multimediatesting.Contract.ConnectionFragmentContract;
+import feec.vutbr.cz.multimediatesting.Contract.GraphActivityContract;
 import feec.vutbr.cz.multimediatesting.Contract.HistoryActivityContract;
 
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Date;
-import java.util.Locale;
+import java.util.*;
 
-public class Database extends SQLiteOpenHelper implements HistoryActivityContract.Database, ConnectionFragmentContract.DatabaseModel {
+public class Database extends SQLiteOpenHelper implements HistoryActivityContract.Database,
+        ConnectionFragmentContract.DatabaseModel,
+        GraphActivityContract.Database {
+
 
     private Context mCtx;
 
-    private static final int VERSION = 1;
+    private static final int VERSION = 3;
     private static final String DB_NAME = "multimedia_testing";
 
-    private static final String TABLE_MEASUREMENT = "measeure";
+    private static final String TABLE_MEASUREMENT = "measure";
     private static final String TABLE_PACKETS = "packets";
 
     private static final String TABLE_MEASUREMENT_KEY_ID = "id";
@@ -62,10 +64,15 @@ public class Database extends SQLiteOpenHelper implements HistoryActivityContrac
             + TABLE_MEASUREMENT_KEY_PACKET_LOSS + " INTEGER,"
             + TABLE_MEASUREMENT_KEY_CREATED + " DATETIME DEFAULT CURRENT_TIMESTAMP)";
 
-    private static final String REMOVE_MEASUREMENT = "DELETE FROM " + TABLE_MEASUREMENT + " WHERE id=";
-    private static final String REMOVE_MEASUREMENT_PACKETS = "DELETE FROM " + TABLE_PACKETS + " WHERE parent_id=";
+    private static final String REMOVE_MEASUREMENT = "DELETE FROM " + TABLE_MEASUREMENT + " WHERE " + TABLE_MEASUREMENT_KEY_ID + "=";
+    private static final String REMOVE_MEASUREMENT_PACKETS = "DELETE FROM " + TABLE_PACKETS + " WHERE " + TABLE_PACKETS_KEY_PARENT_ID + "=";
 
     private static final String GET_ALL_MEASUREMENTS = "SELECT " + TABLE_MEASUREMENT_KEY_NAME + "," + TABLE_MEASUREMENT_KEY_ID + " FROM " + TABLE_MEASUREMENT + " ORDER BY " + TABLE_MEASUREMENT_KEY_CREATED + " ASC";
+
+    private static final String GET_SINGLE_MEASUREMENT = "SELECT * FROM " + TABLE_MEASUREMENT + " WHERE " + TABLE_MEASUREMENT_KEY_ID + "=";
+    private static final String GET_PACKETS = "SELECT * FROM " + TABLE_PACKETS + " WHERE " + TABLE_PACKETS_KEY_PARENT_ID + "=";
+    private static final String GET_PACKETS_DELAY = "SELECT " + TABLE_PACKETS_KEY_DELAY + "," + TABLE_PACKETS_KEY_SEQ_NUM + " FROM " + TABLE_PACKETS + " WHERE " + TABLE_PACKETS_KEY_PARENT_ID + "=";
+    private static final String ORDER_BY_SEQ_NUM = " ORDER BY " + TABLE_PACKETS_KEY_SEQ_NUM + " ASC";
 
 
     public Database(Context ctx) {
@@ -82,13 +89,14 @@ public class Database extends SQLiteOpenHelper implements HistoryActivityContrac
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_MEASUREMENT);
-        db.execSQL("DROP TABLE IF EXISTS" + TABLE_PACKETS);
+        db.execSQL("DROP TABLE IF EXISTS " + TABLE_PACKETS);
         onCreate(db);
     }
 
 
     @Override
     public long insertData(ConnectionFragmentContract.PacketModel packets) {
+        SQLiteDatabase db = getWritableDatabase();
         ArrayList<Packet> sent = packets.getSent();
         ArrayList<Packet> received = packets.getReceived();
 
@@ -98,7 +106,8 @@ public class Database extends SQLiteOpenHelper implements HistoryActivityContrac
         for (int i = 0; i < received.size(); i++) {
             Packet receivedPacket = received.get(i);
             int seqNum = receivedPacket.getSeqNum();
-            Packet sentPacket = sent.remove(seqNum);
+            Packet sentPacket = sent.remove(sent.indexOf(receivedPacket));
+
 
             ContentValues values = new ContentValues();
             values.put(TABLE_PACKETS_KEY_PARENT_ID, parentId);
@@ -106,6 +115,7 @@ public class Database extends SQLiteOpenHelper implements HistoryActivityContrac
             values.put(TABLE_PACKETS_KEY_TIME_SENT, sentPacket.getTimeStamp());
             values.put(TABLE_PACKETS_KEY_TIME_RECEIVED, receivedPacket.getTimeStamp());
             values.put(TABLE_PACKETS_KEY_DELAY, receivedPacket.getTimeStamp() - sentPacket.getTimeStamp());
+            db.insert(TABLE_PACKETS, null, values);
         }
 
         for (int i = 0; i < sent.size(); i++) {
@@ -118,6 +128,7 @@ public class Database extends SQLiteOpenHelper implements HistoryActivityContrac
             values.put(TABLE_PACKETS_KEY_TIME_SENT, sentPacket.getTimeStamp());
             values.put(TABLE_PACKETS_KEY_TIME_RECEIVED, 0);
             values.put(TABLE_PACKETS_KEY_DELAY, 0);
+            db.insert(TABLE_PACKETS, null, values);
         }
 
         return parentId;
@@ -226,5 +237,56 @@ public class Database extends SQLiteOpenHelper implements HistoryActivityContrac
         db.execSQL(query);
         query = REMOVE_MEASUREMENT + sId;
         db.execSQL(query);
+    }
+
+    @Override
+    public Map<String, String> getInfo(long id) {
+        SQLiteDatabase db = getReadableDatabase();
+        String sId = DatabaseUtils.sqlEscapeString(String.valueOf(id));
+        Cursor cursor = db.rawQuery(GET_SINGLE_MEASUREMENT + sId, null);
+        ArrayMap<String, String> info = new ArrayMap<>();
+        if (cursor.moveToFirst()) {
+            info.put("Date:", cursor.getString(cursor.getColumnIndex(TABLE_MEASUREMENT_KEY_NAME)));
+            String temp = cursor.getString(cursor.getColumnIndex(TABLE_MEASUREMENT_KEY_CONNECTION_TYPE));
+            info.put("Connection type:", temp);
+            if (temp.equals("Mobile")) {
+                info.put("Technology:", cursor.getString(cursor.getColumnIndex(TABLE_MEASUREMENT_KEY_SUBTYPE)));
+                info.put("Operator:", cursor.getString(cursor.getColumnIndex(TABLE_MEASUREMENT_KEY_OPERATOR)));
+            } else {
+                info.put("SSID:", cursor.getString(cursor.getColumnIndex(TABLE_MEASUREMENT_KEY_SUBTYPE)));
+            }
+            info.put("Packet loss:", cursor.getString(cursor.getColumnIndex(TABLE_MEASUREMENT_KEY_PACKET_LOSS)) + "%");
+        }
+        cursor.close();
+        return info;
+    }
+
+    @Override
+    public long[][] getDelayAndJitter(long id) {
+        SQLiteDatabase db = getReadableDatabase();
+        String sId = DatabaseUtils.sqlEscapeString(String.valueOf(id));
+        Cursor cursor = db.rawQuery(GET_PACKETS_DELAY + sId + ORDER_BY_SEQ_NUM, null);
+        long[][] result = new long[2][];
+        if (cursor.getCount() > 0) {
+            long[] delays = new long[cursor.getCount()];
+            long[] jitter = new long[cursor.getCount() - 1];
+            long last = 0;
+            if (cursor.moveToFirst()) {
+                do {
+                    long delay = cursor.getLong(cursor.getColumnIndex(TABLE_PACKETS_KEY_DELAY));
+                    int seqNum = cursor.getInt(cursor.getColumnIndex(TABLE_PACKETS_KEY_SEQ_NUM));
+                    delays[seqNum] = delay;
+                    if (seqNum != 0) {
+                        jitter[seqNum - 1] = Math.abs(delay - last);
+                    }
+                    last = delay;
+                } while (cursor.moveToNext());
+            }
+            result[0] = delays;
+            result[1] = jitter;
+        }
+        cursor.close();
+
+        return result;
     }
 }

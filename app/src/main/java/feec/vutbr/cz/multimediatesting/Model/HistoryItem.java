@@ -1,7 +1,5 @@
 package feec.vutbr.cz.multimediatesting.Model;
 
-import feec.vutbr.cz.multimediatesting.View.HistoryActivity;
-
 public class HistoryItem {
 
     private String mName;
@@ -16,7 +14,7 @@ public class HistoryItem {
         return mName;
     }
 
-    public long getmId() {
+    public long getId() {
         return mId;
     }
 }

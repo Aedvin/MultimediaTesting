@@ -68,6 +68,25 @@
                         android:id="@+id/editSettingsPacketCount"
                 />
             </LinearLayout>
+            <LinearLayout
+                    android:orientation="horizontal"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+                <TextView
+                        android:text="@string/text_settings_server_address"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content" android:id="@+id/txtSettingsServerAddress"
+                        android:layout_weight="1"
+                        android:textColor="@color/colorAccent" android:textStyle="normal|bold"
+                />
+                <EditText
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:ems="10"
+                        android:id="@+id/editSettingsServerAddress"
+                        android:inputType="text"/>
+            </LinearLayout>
         </LinearLayout>
 
 

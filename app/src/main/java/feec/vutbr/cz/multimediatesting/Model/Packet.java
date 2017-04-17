@@ -1,9 +1,6 @@
 package feec.vutbr.cz.multimediatesting.Model;
 
-import android.util.Log;
-
 import java.nio.ByteBuffer;
-import java.util.Arrays;
 
 public class Packet implements Comparable<Packet> {
     private int mSeqNum;
@@ -32,6 +29,14 @@ public class Packet implements Comparable<Packet> {
 
     public void setTimeStamp(long timestamp) {
         mTimeStamp = timestamp;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj instanceof Packet) {
+            return this.mSeqNum == ((Packet) obj).mSeqNum;
+        }
+        return false;
     }
 
     @Override

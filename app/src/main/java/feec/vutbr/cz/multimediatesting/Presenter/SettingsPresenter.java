@@ -1,11 +1,8 @@
 package feec.vutbr.cz.multimediatesting.Presenter;
 
-import android.databinding.repacked.treelayout.internal.util.java.lang.string.StringUtil;
-import android.databinding.tool.util.StringUtils;
 import android.support.annotation.NonNull;
 import feec.vutbr.cz.multimediatesting.Contract.SettingsActivityContract;
 import feec.vutbr.cz.multimediatesting.Factory.PresenterFactory;
-import feec.vutbr.cz.multimediatesting.Model.SavedSettings;
 
 public class SettingsPresenter implements SettingsActivityContract.Presenter {
 
@@ -80,11 +77,19 @@ public class SettingsPresenter implements SettingsActivityContract.Presenter {
     }
 
     @Override
+    public void onServerAddressChange(String address) {
+        if (!mModel.getServerAddress().equals(address)) {
+            mModel.saveServerAddress(address);
+        }
+    }
+
+    @Override
     public void setSavedSettings(SettingsActivityContract.Settings settings) {
         mModel = settings;
         if (mView != null) {
             mView.setPacketSize(String.valueOf(mModel.getPacketSize()));
             mView.setPacketCount(String.valueOf(mModel.getPacketCount()));
+            mView.setServerAddress(mModel.getServerAddress());
         }
     }
 

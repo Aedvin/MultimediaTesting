@@ -2,9 +2,7 @@ package feec.vutbr.cz.multimediatesting.Presenter;
 
 import android.support.annotation.NonNull;
 import feec.vutbr.cz.multimediatesting.Contract.HistoryActivityContract;
-import feec.vutbr.cz.multimediatesting.Contract.SettingsActivityContract;
 import feec.vutbr.cz.multimediatesting.Factory.PresenterFactory;
-import feec.vutbr.cz.multimediatesting.View.HistoryActivity;
 
 public class HistoryPresenter implements HistoryActivityContract.Presenter {
 
@@ -18,6 +16,7 @@ public class HistoryPresenter implements HistoryActivityContract.Presenter {
 
     @Override
     public void onDetachView() {
+        mModel.close();
         mView = null;
         mModel = null;
     }
@@ -42,13 +41,18 @@ public class HistoryPresenter implements HistoryActivityContract.Presenter {
 
     @Override
     public void onItemClick(long id) {
-
+        mView.showResults(id);
     }
 
     @Override
     public void onDeleteClick(long id) {
         mModel.deleteMeasurement(id);
         mView.setHistoryData(mModel.getMeasurements());
+    }
+
+    @Override
+    public void onSaveClick(long id) {
+
     }
 
 

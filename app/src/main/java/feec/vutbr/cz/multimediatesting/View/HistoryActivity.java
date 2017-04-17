@@ -1,5 +1,6 @@
 package feec.vutbr.cz.multimediatesting.View;
 
+import android.content.Intent;
 import android.databinding.DataBindingUtil;
 import android.os.Bundle;
 import android.support.v4.app.LoaderManager;
@@ -88,6 +89,13 @@ public class HistoryActivity extends AppCompatActivity implements HistoryActivit
     @Override
     public void closeView() {
         onBackPressed();
+    }
+
+    @Override
+    public void showResults(long id) {
+        Intent i = new Intent(this, GraphActivity.class);
+        i.putExtra("id", id);
+        startActivity(i);
     }
 
     @Override

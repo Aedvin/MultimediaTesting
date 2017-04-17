@@ -9,7 +9,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
-import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -51,7 +50,7 @@ public class HistoryAdapater extends RecyclerView.Adapter<HistoryAdapater.Histor
             @Override
             public void onClick(View v) {
                 v.startAnimation(animation);
-                mPresenter.onItemClick(item.getmId());
+                mPresenter.onItemClick(item.getId());
             }
         });
 
@@ -59,14 +58,22 @@ public class HistoryAdapater extends RecyclerView.Adapter<HistoryAdapater.Histor
             @Override
             public void onClick(View v) {
                 v.startAnimation(animation);
-                mPresenter.onDeleteClick(item.getmId());
+                mPresenter.onDeleteClick(item.getId());
+            }
+        });
+
+        holder.mSave.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                v.startAnimation(animation);
+                mPresenter.onSaveClick(item.getId());
             }
         });
 
         if (position % 2 == 0) {
-            holder.mBackground.setBackgroundColor(holder.itemView.getResources().getColor(R.color.holoLightGreen));
+            holder.mBackground.setBackgroundColor(holder.itemView.getResources().getColor(R.color.buttonPressed));
         } else {
-            holder.mBackground.setBackgroundColor(holder.itemView.getResources().getColor(R.color.holoDarkGreen));
+            holder.mBackground.setBackgroundColor(holder.itemView.getResources().getColor(R.color.buttonStrokePressed));
         }
     }
 
@@ -82,12 +89,14 @@ public class HistoryAdapater extends RecyclerView.Adapter<HistoryAdapater.Histor
 
         public TextView mName;
         public ImageView mDelete;
+        public ImageView mSave;
         public LinearLayout mBackground;
 
         public HistoryViewHolder(View itemView) {
             super(itemView);
             mName = (TextView) itemView.findViewById(R.id.historyItemName);
             mDelete = (ImageView) itemView.findViewById(R.id.historyItemDelete);
+            mSave = (ImageView) itemView.findViewById(R.id.historyItemSave);
             mBackground = (LinearLayout) itemView.findViewById(R.id.historyItemBackground);
         }
     }

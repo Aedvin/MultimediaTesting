@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:orientation="horizontal"
+              android:layout_width="match_parent"
+              android:layout_height="50dp"
+              android:background="@color/backgroundColor"
+              android:paddingLeft="20dp"
+              android:paddingRight="0dp"
+              android:paddingStart="20dp"
+              android:paddingEnd="0dp"
+              android:minHeight="50dp">
+
+    <TextView
+            android:text="@string/empty_text"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:id="@+id/infoGraphName"
+            android:textStyle="bold"
+            android:layout_weight="1"
+            android:gravity="center_vertical"
+            android:textColor="@color/colorAccent" android:textSize="14sp"/>
+    <TextView
+            android:text="@string/empty_text"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:id="@+id/infoGraphValue"
+            android:textStyle="bold"
+            android:layout_weight="1"
+            android:gravity="start|center_vertical"
+            android:textColor="@color/colorAccent"/>
+</LinearLayout>

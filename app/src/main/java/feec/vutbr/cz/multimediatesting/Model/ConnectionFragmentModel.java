@@ -10,8 +10,8 @@ public class ConnectionFragmentModel extends Thread implements ConnectionFragmen
 
     private ConnectionFragmentContract.ActionListener mListener;
     private SocketThread mThread;
+    private String mServerAddress;
 
-    private static final String HOST = "192.168.0.101";
     private static final int PORT = 49558;
 
 
@@ -28,7 +28,7 @@ public class ConnectionFragmentModel extends Thread implements ConnectionFragmen
     @Override
     public void onStart() {
         if (mThread == null) {
-            mThread = new SocketThread(HOST, PORT, this);
+            mThread = new SocketThread(mServerAddress, PORT, this);
             if (!mThread.isRunning()) {
                 mThread.start();
             }
@@ -66,6 +66,11 @@ public class ConnectionFragmentModel extends Thread implements ConnectionFragmen
         if (mThread != null) {
             mThread.setLastPacket();
         }
+    }
+
+    @Override
+    public void setServerAddress(String serverAddress) {
+        mServerAddress = serverAddress;
     }
 
 

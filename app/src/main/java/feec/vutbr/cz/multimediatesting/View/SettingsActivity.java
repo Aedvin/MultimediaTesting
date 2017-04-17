@@ -2,16 +2,12 @@ package feec.vutbr.cz.multimediatesting.View;
 
 import android.databinding.DataBindingUtil;
 import android.os.Bundle;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.Loader;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.Toolbar;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.MenuItem;
-import android.view.View;
 import feec.vutbr.cz.multimediatesting.Contract.SettingsActivityContract;
 import feec.vutbr.cz.multimediatesting.Loader.PresenterLoader;
 import feec.vutbr.cz.multimediatesting.Model.SavedSettings;
@@ -70,6 +66,24 @@ public class SettingsActivity extends AppCompatActivity implements SettingsActiv
             @Override
             public void afterTextChanged(Editable s) {
                 mPresenter.onPacketCountChange(s.toString());
+            }
+        });
+
+        mBind.editSettingsServerAddress.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+                return;
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                return;
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+
+                mPresenter.onServerAddressChange(s.toString());
             }
         });
 
@@ -133,5 +147,10 @@ public class SettingsActivity extends AppCompatActivity implements SettingsActiv
     @Override
     public void setPacketCount(String packetCount) {
         mBind.editSettingsPacketCount.setText(packetCount);
+    }
+
+    @Override
+    public void setServerAddress(String address) {
+        mBind.editSettingsServerAddress.setText(address);
     }
 }

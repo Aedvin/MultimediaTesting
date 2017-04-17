@@ -7,58 +7,47 @@
                   type="feec.vutbr.cz.multimediatesting.Contract.ConnectionFragmentContract.Presenter"/>
     </data>
 
-        <LinearLayout
-                android:orientation="vertical"
+    <LinearLayout
+            android:orientation="vertical"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" android:gravity="center"
+            tools:showIn="@layout/activity_main"
+            tools:context="feec.vutbr.cz.multimediatesting.View.MainActivity">
+        <Button
+                android:text="@string/button_start"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/btnStart"
+                android:background="@drawable/button_with_press"
+                android:textColor="@color/colorAccent"
+                android:onClick="@{()->presenter.onStartMeasure()}"
+                android:layout_margin="10dp"/>
+
+        <Button
+                android:text="@string/button_result"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/btnResult"
+                android:background="@drawable/button_with_press"
+                android:visibility="gone"
+                android:textColor="@color/colorAccent"
+                android:onClick="@{()->presenter.onShowResultsClick()}"
+                android:layout_margin="10dp"/>
+
+        <ProgressBar
+                style="?android:attr/progressBarStyleLarge"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/progressBar"
+                android:progressDrawable="@drawable/circular_progress_bar"
+                android:visibility="gone"
+                android:padding="40dp"/>
+
+        <TextView
+                android:textColor="@color/colorAccent"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent" android:gravity="center"
-                tools:showIn="@layout/activity_main"
-                tools:context="feec.vutbr.cz.multimediatesting.View.MainActivity">
-            <Button
-                    android:text="@string/button_start"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:id="@+id/btnStart"
-                    android:background="@drawable/button_with_press"
-                    android:textColor="@color/colorAccent"
-                    android:onClick="@{()->presenter.onStartMeasure()}"
-                    android:layout_margin="10dp"/>
+                android:layout_height="wrap_content" android:id="@+id/infoText" android:gravity="center"
+                android:textStyle="bold|italic" android:textSize="18sp" android:layout_margin="10dp"/>
 
-            <Button
-                    android:text="@string/button_save"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:id="@+id/btnSave"
-                    android:background="@drawable/button_with_press"
-                    android:visibility="gone"
-                    android:textColor="@color/colorAccent"
-
-                    android:layout_margin="10dp"/>
-
-            <Button
-                    android:text="@string/button_result"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:id="@+id/btnResult"
-                    android:background="@drawable/button_with_press"
-                    android:visibility="gone"
-                    android:textColor="@color/colorAccent"
-
-                    android:layout_margin="10dp"/>
-
-            <ProgressBar
-                    style="?android:attr/progressBarStyleLarge"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:id="@+id/progressBar"
-                    android:progressDrawable="@drawable/circular_progress_bar"
-                    android:visibility="gone"
-                    android:padding="40dp"/>
-
-            <TextView
-                    android:textColor="@color/colorAccent"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content" android:id="@+id/infoText" android:gravity="center"
-                    android:textStyle="bold|italic" android:textSize="18sp" android:layout_margin="10dp"/>
-
-        </LinearLayout>
+    </LinearLayout>
 </layout>

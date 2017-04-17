@@ -1,6 +1,5 @@
 package feec.vutbr.cz.multimediatesting.Contract;
 
-import feec.vutbr.cz.multimediatesting.Listener.BaseActionListener;
 import feec.vutbr.cz.multimediatesting.Listener.DataActionListener;
 import feec.vutbr.cz.multimediatesting.Model.BaseModel;
 import feec.vutbr.cz.multimediatesting.Model.Packet;
@@ -26,15 +25,13 @@ public interface ConnectionFragmentContract {
 
         void stopTimer();
 
-        void showSaveButton();
-
-        void hideSaveButton();
-
         void showResultButton();
 
         void hideResultButton();
 
         void initView();
+
+        void showResults(long id);
     }
 
     interface Presenter extends BasePresenter<View> {
@@ -48,7 +45,7 @@ public interface ConnectionFragmentContract {
 
         void onViewRequest();
 
-        long onRequestLastMeasurementId();
+        void onShowResultsClick();
     }
 
     interface Model extends BaseModel {
@@ -63,6 +60,8 @@ public interface ConnectionFragmentContract {
         void sendData(byte[] buffer);
 
         void setLastPacket();
+
+        void setServerAddress(String serverAddress);
     }
 
     interface PacketModel extends BaseModel {
@@ -82,12 +81,16 @@ public interface ConnectionFragmentContract {
 
     interface DatabaseModel extends BaseModel {
         long insertData(ConnectionFragmentContract.PacketModel packets);
+
+        void close();
     }
 
     interface Settings extends BaseModel {
         int getPacketSize();
 
         int getPacketCount();
+
+        String getServerAddress();
     }
 
 

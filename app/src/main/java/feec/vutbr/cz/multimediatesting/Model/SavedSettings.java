@@ -10,6 +10,7 @@ public class SavedSettings implements SettingsActivityContract.Settings, Connect
     private final static String PREFS_NAME = "Settings";
     private final static String PACKET_SIZE_KEY = "packet_size";
     private final static String PACKET_COUNT_KEY = "packet_count";
+    private final static String SERVER_ADDRESS = "server_address";
 
     private Context mContext;
     private SharedPreferences mSettings;
@@ -27,6 +28,16 @@ public class SavedSettings implements SettingsActivityContract.Settings, Connect
     @Override
     public void savePacketCount(int packetCount) {
         mSettings.edit().putInt(PACKET_COUNT_KEY, packetCount).apply();
+    }
+
+    @Override
+    public void saveServerAddress(String serverAddress) {
+        mSettings.edit().putString(SERVER_ADDRESS, serverAddress).apply();
+    }
+
+    @Override
+    public String getServerAddress() {
+        return mSettings.getString(SERVER_ADDRESS, "127.0.0.1");
     }
 
     @Override
