@@ -3,11 +3,13 @@ package feec.vutbr.cz.multimediatesting.Presenter;
 import android.support.annotation.NonNull;
 import feec.vutbr.cz.multimediatesting.Contract.HistoryActivityContract;
 import feec.vutbr.cz.multimediatesting.Factory.PresenterFactory;
+import feec.vutbr.cz.multimediatesting.Listener.BaseActionListener;
 
-public class HistoryPresenter implements HistoryActivityContract.Presenter {
+public class HistoryPresenter implements HistoryActivityContract.Presenter, BaseActionListener {
 
     private HistoryActivityContract.View mView;
     private HistoryActivityContract.Database mModel;
+    private HistoryActivityContract.File mFile;
 
     @Override
     public void onAttachView(@NonNull HistoryActivityContract.View view) {
@@ -16,7 +18,12 @@ public class HistoryPresenter implements HistoryActivityContract.Presenter {
 
     @Override
     public void onDetachView() {
+        mView.hideLoading();
+        mFile.removeListener();
+        mFile.close();
+        mFile.removeDatabase();
         mModel.close();
+        mFile = null;
         mView = null;
         mModel = null;
     }
@@ -40,6 +47,13 @@ public class HistoryPresenter implements HistoryActivityContract.Presenter {
     }
 
     @Override
+    public void setFileWriter(HistoryActivityContract.File file) {
+        mFile = file;
+        mFile.addListener(this);
+        mFile.setDatabase(mModel);
+    }
+
+    @Override
     public void onItemClick(long id) {
         mView.showResults(id);
     }
@@ -52,7 +66,23 @@ public class HistoryPresenter implements HistoryActivityContract.Presenter {
 
     @Override
     public void onSaveClick(long id) {
+        mView.showLoading();
+        if (mFile.canWrite().equals("")) {
+            mFile.start(id);
+        }
 
+    }
+
+    @Override
+    public void onError(String message) {
+        mFile.close();
+        mView.showError(message);
+    }
+
+    @Override
+    public void onSuccess() {
+        mFile.close();
+        mView.hideLoading();
     }
 
 

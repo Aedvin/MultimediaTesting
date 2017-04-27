@@ -1,9 +1,7 @@
 package feec.vutbr.cz.multimediatesting.Presenter;
 
 import android.support.annotation.NonNull;
-import android.util.Log;
 import feec.vutbr.cz.multimediatesting.Contract.MainActivityContract;
-import feec.vutbr.cz.multimediatesting.Factory.ModelFactory;
 import feec.vutbr.cz.multimediatesting.Factory.PresenterFactory;
 
 public class MainActivityPresenter implements MainActivityContract.Presenter {

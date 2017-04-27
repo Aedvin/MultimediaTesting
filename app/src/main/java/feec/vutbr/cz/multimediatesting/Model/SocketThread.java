@@ -1,10 +1,12 @@
 package feec.vutbr.cz.multimediatesting.Model;
 
-import android.util.Log;
 import feec.vutbr.cz.multimediatesting.Listener.DataActionListener;
 
 import java.io.IOException;
-import java.net.*;
+import java.net.DatagramPacket;
+import java.net.DatagramSocket;
+import java.net.InetAddress;
+import java.net.SocketTimeoutException;
 import java.util.Arrays;
 
 
@@ -106,6 +108,7 @@ public class SocketThread extends Thread {
 
     public void close() {
         mRunning = false;
+        mListener = null;
     }
 
     public void setLastPacket() {

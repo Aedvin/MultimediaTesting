@@ -1,11 +1,9 @@
 package feec.vutbr.cz.multimediatesting.Model;
 
 
-import android.util.Log;
 import feec.vutbr.cz.multimediatesting.Contract.ConnectionFragmentContract;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Random;
 
 public class MeasuredPackets implements ConnectionFragmentContract.PacketModel {
@@ -61,25 +59,5 @@ public class MeasuredPackets implements ConnectionFragmentContract.PacketModel {
     public int getPercentReceived(int packetCount) {
         return (int) ((double) mReceived.size() / (double) packetCount * 100);
     }
-
-    /*@Override
-    public void countDelay() {
-        Collections.sort(mReceived);
-        mPacketDelay = new long[mSent.size()];
-        for (int i = 0; i < mReceived.size(); i++) {
-            Packet received = mReceived.get(i);
-            Packet sent = mSent.get(received.getSeqNum());
-            mPacketDelay[received.getSeqNum()] = received.getTimeStamp() - sent.getTimeStamp();
-        }
-    }
-
-    @Override
-    public void countJitter() {
-        mPacketJitter = new long[mPacketDelay.length - 1];
-        for (int i = 1; i < mPacketDelay.length; i++) {
-            mPacketJitter[i - 1] = Math.abs(mPacketDelay[i] - mPacketDelay[i - 1]);
-        }
-    } */
-
 
 }

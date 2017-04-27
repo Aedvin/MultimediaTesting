@@ -15,6 +15,7 @@ import feec.vutbr.cz.multimediatesting.Adapter.GraphPagerAdapter;
 import feec.vutbr.cz.multimediatesting.Contract.GraphActivityContract;
 import feec.vutbr.cz.multimediatesting.Loader.PresenterLoader;
 import feec.vutbr.cz.multimediatesting.Model.Database;
+import feec.vutbr.cz.multimediatesting.Model.Strings;
 import feec.vutbr.cz.multimediatesting.Presenter.GraphPresenter;
 import feec.vutbr.cz.multimediatesting.R;
 import feec.vutbr.cz.multimediatesting.databinding.ActivityGraphBinding;
@@ -99,6 +100,7 @@ public class GraphActivity extends AppCompatActivity implements GraphActivityCon
         super.onResume();
         mPresenter.onAttachView(this);
         mPresenter.setDatabaseConnection(new Database(getApplicationContext()));
+        mPresenter.setStrings(new Strings(getApplicationContext()));
         mPresenter.setId(mId);
     }
 

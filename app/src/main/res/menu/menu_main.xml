@@ -3,8 +3,8 @@
       tools:context="feec.vutbr.cz.multimediatesting.View.MainActivity">
     <item android:id="@+id/action_settings"
           android:title="@string/action_settings"
-          android:orderInCategory="1"/>
+          android:orderInCategory="0"/>
     <item android:id="@+id/action_history"
           android:title="@string/action_history"
-          android:orderInCategory="0"/>
+          android:orderInCategory="1"/>
 </menu>

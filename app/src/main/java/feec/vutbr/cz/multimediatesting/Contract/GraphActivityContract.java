@@ -27,6 +27,8 @@ public interface GraphActivityContract {
         void setId(long id);
 
         void onPageChange(int position);
+
+        void setStrings(Strings strings);
     }
 
     interface Database extends BaseModel {
@@ -47,6 +49,10 @@ public interface GraphActivityContract {
 
     interface Jitter extends BaseView {
         void setJitter(long[] jitter);
+    }
+
+    interface Strings extends BaseModel {
+        String getString(int code);
     }
 
 }

@@ -13,6 +13,7 @@ import android.telephony.TelephonyManager;
 import feec.vutbr.cz.multimediatesting.Contract.ConnectionFragmentContract;
 import feec.vutbr.cz.multimediatesting.Contract.GraphActivityContract;
 import feec.vutbr.cz.multimediatesting.Contract.HistoryActivityContract;
+import feec.vutbr.cz.multimediatesting.R;
 
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -24,7 +25,7 @@ public class Database extends SQLiteOpenHelper implements HistoryActivityContrac
 
     private Context mCtx;
 
-    private static final int VERSION = 3;
+    private static final int VERSION = 4;
     private static final String DB_NAME = "multimedia_testing";
 
     private static final String TABLE_MEASUREMENT = "measure";
@@ -33,10 +34,15 @@ public class Database extends SQLiteOpenHelper implements HistoryActivityContrac
     private static final String TABLE_MEASUREMENT_KEY_ID = "id";
     private static final String TABLE_MEASUREMENT_KEY_NAME = "name";
     private static final String TABLE_MEASUREMENT_KEY_CONNECTION_TYPE = "conn_type";
+    private static final String TABLE_MEASUREMENT_KEY_CONNECTION_TYPE_CODE = "conn_type_code";
     private static final String TABLE_MEASUREMENT_KEY_SUBTYPE = "subtype";
     private static final String TABLE_MEASUREMENT_KEY_OPERATOR = "operator";
     private static final String TABLE_MEASUREMENT_KEY_PACKET_LOSS = "packet_loss";
     private static final String TABLE_MEASUREMENT_KEY_CREATED = "created";
+
+    private static final int CONNECTION_TYPE_MOBILE = 1;
+    private static final int CONNECTION_TYPE_WIFI = 2;
+    private static final int CONNECTION_TYPE_OTHER = 3;
 
     private static final String TABLE_PACKETS_KEY_ID = "id";
     private static final String TABLE_PACKETS_KEY_PARENT_ID = "parent_id";
@@ -44,7 +50,6 @@ public class Database extends SQLiteOpenHelper implements HistoryActivityContrac
     private static final String TABLE_PACKETS_KEY_TIME_SENT = "time_sent";
     private static final String TABLE_PACKETS_KEY_TIME_RECEIVED = "time_received";
     private static final String TABLE_PACKETS_KEY_DELAY = "delay";
-    // private static final String TABLE_PACKETS_KEY_JITTER = "jitter";
 
     private static final String CREATE_PACKETS_TABLE = "CREATE TABLE " + TABLE_PACKETS + "("
             + TABLE_PACKETS_KEY_ID + " INTEGER PRIMARY KEY AUTOINCREMENT,"
@@ -53,12 +58,12 @@ public class Database extends SQLiteOpenHelper implements HistoryActivityContrac
             + TABLE_PACKETS_KEY_TIME_SENT + " INTEGER,"
             + TABLE_PACKETS_KEY_TIME_RECEIVED + " INTEGER,"
             + TABLE_PACKETS_KEY_DELAY + " INTEGER)";
-    //  + TABLE_PACKETS_KEY_JITTER + " INTEGER)";
 
     private static final String CREATE_MEASUREMENT_TABLE = "CREATE TABLE " + TABLE_MEASUREMENT + "("
             + TABLE_MEASUREMENT_KEY_ID + " INTEGER PRIMARY KEY AUTOINCREMENT,"
             + TABLE_MEASUREMENT_KEY_NAME + " TEXT,"
             + TABLE_MEASUREMENT_KEY_CONNECTION_TYPE + " TEXT,"
+            + TABLE_MEASUREMENT_KEY_CONNECTION_TYPE_CODE + " INTEGER,"
             + TABLE_MEASUREMENT_KEY_SUBTYPE + " TEXT,"
             + TABLE_MEASUREMENT_KEY_OPERATOR + " TEXT,"
             + TABLE_MEASUREMENT_KEY_PACKET_LOSS + " INTEGER,"
@@ -136,18 +141,24 @@ public class Database extends SQLiteOpenHelper implements HistoryActivityContrac
 
     private long insertMeasurement(int packetLoss) {
         SQLiteDatabase db = getWritableDatabase();
-        String connType = getConnectionType();
+        String connType;
         String subConn = "";
         String operator = "";
-        if (connType.equals("Mobile")) {
+        int connTypeCode = getConnectionType();
+        if (connTypeCode == CONNECTION_TYPE_MOBILE) {
             subConn = getMobileNetworkType();
             operator = getOperatorName();
-        } else if (connType.equals("WiFi")) {
+            connType = mCtx.getString(R.string.database_type_mobile);
+        } else if (connTypeCode == CONNECTION_TYPE_WIFI) {
             subConn = getSSID();
+            connType = mCtx.getString(R.string.database_type_wifi);
+        } else {
+            connType = mCtx.getString(R.string.database_type_other);
         }
         ContentValues values = new ContentValues();
         values.put(TABLE_MEASUREMENT_KEY_NAME, getMeasurementName());
         values.put(TABLE_MEASUREMENT_KEY_CONNECTION_TYPE, connType);
+        values.put(TABLE_MEASUREMENT_KEY_CONNECTION_TYPE_CODE, connTypeCode);
         values.put(TABLE_MEASUREMENT_KEY_SUBTYPE, subConn);
         values.put(TABLE_MEASUREMENT_KEY_OPERATOR, operator);
         values.put(TABLE_MEASUREMENT_KEY_PACKET_LOSS, packetLoss);
@@ -193,23 +204,19 @@ public class Database extends SQLiteOpenHelper implements HistoryActivityContrac
             case TelephonyManager.NETWORK_TYPE_LTE:
                 return "4G";
             default:
-                return "Unknown";
+                return mCtx.getString(R.string.database_type_unknown);
         }
     }
 
-    private String getConnectionType() {
+    private int getConnectionType() {
         ConnectivityManager connMgr = (ConnectivityManager) mCtx.getSystemService(Context.CONNECTIVITY_SERVICE);
         switch (connMgr.getActiveNetworkInfo().getType()) {
-            case ConnectivityManager.TYPE_WIMAX:
-                return "WiMax";
             case ConnectivityManager.TYPE_WIFI:
-                return "WiFi";
-            case ConnectivityManager.TYPE_VPN:
-                return "VPN";
+                return CONNECTION_TYPE_WIFI;
             case ConnectivityManager.TYPE_MOBILE:
-                return "Mobile";
+                return CONNECTION_TYPE_MOBILE;
             default:
-                return "Other";
+                return CONNECTION_TYPE_OTHER;
         }
     }
 
@@ -240,22 +247,97 @@ public class Database extends SQLiteOpenHelper implements HistoryActivityContrac
     }
 
     @Override
+    public String[] getFileExport(long id) {
+        SQLiteDatabase db = getReadableDatabase();
+        String sId = DatabaseUtils.sqlEscapeString(String.valueOf(id));
+        Cursor cursor = db.rawQuery(GET_SINGLE_MEASUREMENT + sId, null);
+        ArrayList<String> lines = new ArrayList<>();
+        if (cursor.moveToFirst()) {
+            int temp = cursor.getInt(cursor.getColumnIndex(TABLE_MEASUREMENT_KEY_CONNECTION_TYPE_CODE));
+            StringBuilder first = new StringBuilder(mCtx.getString(R.string.database_info_date));
+            StringBuilder second = new StringBuilder(cursor.getString(cursor.getColumnIndex(TABLE_MEASUREMENT_KEY_NAME)));
+            if (temp == CONNECTION_TYPE_MOBILE) {
+                first.append(";" + mCtx.getString(R.string.database_info_connection_type));
+                second.append(";" + mCtx.getString(R.string.database_type_mobile));
+                first.append(";" + mCtx.getString(R.string.database_info_technlogy));
+                second.append(";" + cursor.getString(cursor.getColumnIndex(TABLE_MEASUREMENT_KEY_SUBTYPE)));
+                first.append(";" + mCtx.getString(R.string.database_info_operator));
+                second.append(";" + cursor.getString(cursor.getColumnIndex(TABLE_MEASUREMENT_KEY_OPERATOR)));
+            } else if (temp == CONNECTION_TYPE_WIFI) {
+                first.append(";" + mCtx.getString(R.string.database_info_connection_type));
+                second.append(";" + mCtx.getString(R.string.database_type_wifi));
+                first.append(";" + mCtx.getString(R.string.database_info_ssid));
+                second.append(";" + cursor.getString(cursor.getColumnIndex(TABLE_MEASUREMENT_KEY_SUBTYPE)));
+            } else {
+                first.append(";" + mCtx.getString(R.string.database_info_connection_type));
+                second.append(";" + mCtx.getString(R.string.database_type_other));
+            }
+            lines.add(first.toString());
+            lines.add(second.toString());
+            lines.add("");
+        }
+        cursor.close();
+
+        cursor = db.rawQuery(GET_PACKETS + sId + ORDER_BY_SEQ_NUM, null);
+        if (cursor.moveToFirst()) {
+            lines.add(mCtx.getString(R.string.database_packet_seq_num) + ";"
+                    + mCtx.getString(R.string.database_packet_time_sent) + ";"
+                    + mCtx.getString(R.string.database_packet_time_received) + ";"
+                    + mCtx.getString(R.string.database_packet_delay) + ";"
+                    + mCtx.getString(R.string.database_packet_jitter));
+            long last = 0;
+            do {
+                int seqNum = cursor.getInt(cursor.getColumnIndex(TABLE_PACKETS_KEY_SEQ_NUM));
+                long delay = cursor.getLong(cursor.getColumnIndex(TABLE_PACKETS_KEY_DELAY));
+                StringBuilder values = new StringBuilder(String.valueOf(seqNum) + ";"
+                        + String.valueOf(cursor.getLong(cursor.getColumnIndex(TABLE_PACKETS_KEY_TIME_SENT))) + ";"
+                        + String.valueOf(cursor.getLong(cursor.getColumnIndex(TABLE_PACKETS_KEY_TIME_RECEIVED))) + ";"
+                        + String.valueOf(delay) + ";");
+                if (seqNum != 0) {
+                    values.append(String.valueOf(Math.abs(delay - last)));
+                }
+                last = delay;
+                lines.add(values.toString());
+            } while (cursor.moveToNext());
+        }
+        cursor.close();
+        return lines.toArray(new String[lines.size()]);
+    }
+
+
+    @Override
+    public String getFileName(long id) {
+        SQLiteDatabase db = getReadableDatabase();
+        String sId = DatabaseUtils.sqlEscapeString(String.valueOf(id));
+        Cursor cursor = db.rawQuery(GET_SINGLE_MEASUREMENT + sId, null);
+        String name = null;
+        if (cursor.moveToFirst()) {
+            name = cursor.getString(cursor.getColumnIndex(TABLE_MEASUREMENT_KEY_NAME)).replace(' ', '_');
+        }
+        cursor.close();
+        return name;
+    }
+
+    @Override
     public Map<String, String> getInfo(long id) {
         SQLiteDatabase db = getReadableDatabase();
         String sId = DatabaseUtils.sqlEscapeString(String.valueOf(id));
         Cursor cursor = db.rawQuery(GET_SINGLE_MEASUREMENT + sId, null);
         ArrayMap<String, String> info = new ArrayMap<>();
         if (cursor.moveToFirst()) {
-            info.put("Date:", cursor.getString(cursor.getColumnIndex(TABLE_MEASUREMENT_KEY_NAME)));
-            String temp = cursor.getString(cursor.getColumnIndex(TABLE_MEASUREMENT_KEY_CONNECTION_TYPE));
-            info.put("Connection type:", temp);
-            if (temp.equals("Mobile")) {
-                info.put("Technology:", cursor.getString(cursor.getColumnIndex(TABLE_MEASUREMENT_KEY_SUBTYPE)));
-                info.put("Operator:", cursor.getString(cursor.getColumnIndex(TABLE_MEASUREMENT_KEY_OPERATOR)));
+            info.put(mCtx.getString(R.string.database_info_date) + ":", cursor.getString(cursor.getColumnIndex(TABLE_MEASUREMENT_KEY_NAME)));
+            int temp = cursor.getInt(cursor.getColumnIndex(TABLE_MEASUREMENT_KEY_CONNECTION_TYPE_CODE));
+            if (temp == CONNECTION_TYPE_MOBILE) {
+                info.put(mCtx.getString(R.string.database_info_connection_type) + ":", mCtx.getString(R.string.database_type_mobile));
+                info.put(mCtx.getString(R.string.database_info_technlogy) + ":", cursor.getString(cursor.getColumnIndex(TABLE_MEASUREMENT_KEY_SUBTYPE)));
+                info.put(mCtx.getString(R.string.database_info_operator) + ":", cursor.getString(cursor.getColumnIndex(TABLE_MEASUREMENT_KEY_OPERATOR)));
+            } else if (temp == CONNECTION_TYPE_WIFI) {
+                info.put(mCtx.getString(R.string.database_info_connection_type) + ":", mCtx.getString(R.string.database_type_wifi));
+                info.put(mCtx.getString(R.string.database_info_ssid) + ":", cursor.getString(cursor.getColumnIndex(TABLE_MEASUREMENT_KEY_SUBTYPE)));
             } else {
-                info.put("SSID:", cursor.getString(cursor.getColumnIndex(TABLE_MEASUREMENT_KEY_SUBTYPE)));
+                info.put(mCtx.getString(R.string.database_info_connection_type) + ":", mCtx.getString(R.string.database_type_other));
             }
-            info.put("Packet loss:", cursor.getString(cursor.getColumnIndex(TABLE_MEASUREMENT_KEY_PACKET_LOSS)) + "%");
+            info.put(mCtx.getString(R.string.database_info_packet_loss) + ":", cursor.getString(cursor.getColumnIndex(TABLE_MEASUREMENT_KEY_PACKET_LOSS)) + "%");
         }
         cursor.close();
         return info;
@@ -289,4 +371,6 @@ public class Database extends SQLiteOpenHelper implements HistoryActivityContrac
 
         return result;
     }
+
+
 }

@@ -1,7 +1,6 @@
 package feec.vutbr.cz.multimediatesting.Model;
 
 import feec.vutbr.cz.multimediatesting.Contract.ConnectionFragmentContract;
-import feec.vutbr.cz.multimediatesting.Factory.ModelFactory;
 import feec.vutbr.cz.multimediatesting.Listener.DataActionListener;
 
 
@@ -102,12 +101,4 @@ public class ConnectionFragmentModel extends Thread implements ConnectionFragmen
         }
     }
 
-
-    public static class Factory implements ModelFactory<ConnectionFragmentContract.Model> {
-
-        @Override
-        public ConnectionFragmentContract.Model create() {
-            return new ConnectionFragmentModel();
-        }
-    }
 }

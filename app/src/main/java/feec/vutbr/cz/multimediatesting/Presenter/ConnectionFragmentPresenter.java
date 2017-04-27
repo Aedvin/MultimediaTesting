@@ -5,6 +5,7 @@ import feec.vutbr.cz.multimediatesting.Contract.ConnectionFragmentContract;
 import feec.vutbr.cz.multimediatesting.Factory.PresenterFactory;
 import feec.vutbr.cz.multimediatesting.Model.ConnectionFragmentModel;
 import feec.vutbr.cz.multimediatesting.Model.MeasuredPackets;
+import feec.vutbr.cz.multimediatesting.Model.Strings;
 
 import java.util.Locale;
 
@@ -15,6 +16,7 @@ public class ConnectionFragmentPresenter implements ConnectionFragmentContract.P
     private ConnectionFragmentContract.PacketModel mPackets;
     private ConnectionFragmentContract.Settings mSettings;
     private ConnectionFragmentContract.DatabaseModel mDatabase;
+    private ConnectionFragmentContract.Strings mStrings;
 
     private boolean mFinished;
     private volatile boolean mError;
@@ -26,8 +28,7 @@ public class ConnectionFragmentPresenter implements ConnectionFragmentContract.P
     private String mServerAddress;
 
     public ConnectionFragmentPresenter() {
-        ConnectionFragmentModel.Factory factory = new ConnectionFragmentModel.Factory();
-        mModel = factory.create();
+        mModel = new ConnectionFragmentModel();
         mPacketSeqNum = 0;
         mFinished = false;
         mLastMeasureId = 0;
@@ -48,6 +49,7 @@ public class ConnectionFragmentPresenter implements ConnectionFragmentContract.P
         mDatabase.close();
         mSettings = null;
         mDatabase = null;
+        mStrings = null;
     }
 
     @Override
@@ -67,7 +69,7 @@ public class ConnectionFragmentPresenter implements ConnectionFragmentContract.P
 
     @Override
     public void onSuccess() {
-        mView.postInfo("Connection success...");
+        mView.postInfo(mStrings.getString(Strings.CONNECTION_CODE));
         mPackets = new MeasuredPackets(mPacketSize);
         mView.startTimer();
     }
@@ -91,7 +93,7 @@ public class ConnectionFragmentPresenter implements ConnectionFragmentContract.P
         mModel.sendData(mPackets.getSend(mPacketSeqNum));
         mPacketSeqNum++;
         if (mView != null && mPacketCount % 10 == 0 && !mError) {
-            mView.postInfo(String.format(Locale.getDefault(), "Sent %d%%\n  Received %d%%", mPackets.getPercentSent(mPacketCount), mPackets.getPercentReceived(mPacketCount)));
+            mView.postInfo(String.format(Locale.getDefault(), mStrings.getString(Strings.SENT_CODE) + " %d%%\n  " + mStrings.getString(Strings.RECEIVED_CODE) + " %d%%", mPackets.getPercentSent(mPacketCount), mPackets.getPercentReceived(mPacketCount)));
         }
         if (mPacketSeqNum >= mPacketCount) {
             if (mView != null) {
@@ -112,6 +114,11 @@ public class ConnectionFragmentPresenter implements ConnectionFragmentContract.P
     @Override
     public void setDatabaseConnection(ConnectionFragmentContract.DatabaseModel database) {
         mDatabase = database;
+    }
+
+    @Override
+    public void setStrings(ConnectionFragmentContract.Strings strings) {
+        mStrings = strings;
     }
 
 
@@ -135,14 +142,14 @@ public class ConnectionFragmentPresenter implements ConnectionFragmentContract.P
     public void onFinish() {
         mFinished = true;
         if (mView != null) {
-            mView.postInfo("Saving results...");
+            mView.postInfo(mStrings.getString(Strings.SAVING_CODE));
         }
         if (mDatabase != null && !mError) {
             mLastMeasureId = mDatabase.insertData(mPackets);
         }
         if (mView != null) {
             mView.initView();
-            mView.postInfo("Done");
+            mView.postInfo(mStrings.getString(Strings.DONE_CODE));
         }
         mModel.onDestroy();
     }
@@ -161,6 +168,8 @@ public class ConnectionFragmentPresenter implements ConnectionFragmentContract.P
             } else {
                 mView.hideResultButton();
                 mView.hideLoading();
+                mView.showStartButton();
+                mView.postInfo("");
             }
         }
     }

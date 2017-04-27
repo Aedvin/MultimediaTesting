@@ -43,6 +43,8 @@ public interface ConnectionFragmentContract {
 
         void setDatabaseConnection(ConnectionFragmentContract.DatabaseModel database);
 
+        void setStrings(ConnectionFragmentContract.Strings strings);
+
         void onViewRequest();
 
         void onShowResultsClick();
@@ -91,6 +93,11 @@ public interface ConnectionFragmentContract {
         int getPacketCount();
 
         String getServerAddress();
+    }
+
+    interface Strings extends BaseModel {
+        String getString(int code);
+
     }
 
 

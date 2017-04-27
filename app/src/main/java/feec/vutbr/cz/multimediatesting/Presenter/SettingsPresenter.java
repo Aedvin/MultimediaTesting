@@ -63,6 +63,10 @@ public class SettingsPresenter implements SettingsActivityContract.Presenter {
         try {
             count = Integer.parseInt(packetCount);
 
+            if (count > 1000) {
+                mView.setPacketCount(String.valueOf(1000));
+                return;
+            }
             if (count <= 0) {
                 mView.setPacketCount(String.valueOf(1));
                 return;

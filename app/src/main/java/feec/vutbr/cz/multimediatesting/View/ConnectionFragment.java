@@ -16,6 +16,7 @@ import feec.vutbr.cz.multimediatesting.Contract.ConnectionFragmentContract;
 import feec.vutbr.cz.multimediatesting.Loader.PresenterLoader;
 import feec.vutbr.cz.multimediatesting.Model.Database;
 import feec.vutbr.cz.multimediatesting.Model.SavedSettings;
+import feec.vutbr.cz.multimediatesting.Model.Strings;
 import feec.vutbr.cz.multimediatesting.Presenter.ConnectionFragmentPresenter;
 import feec.vutbr.cz.multimediatesting.R;
 import feec.vutbr.cz.multimediatesting.databinding.ConnectionFragmentBinding;
@@ -56,6 +57,7 @@ public class ConnectionFragment extends Fragment implements ConnectionFragmentCo
         mPresenter.onAttachView(this);
         mPresenter.setSavedSettings(new SavedSettings(getActivity().getApplicationContext()));
         mPresenter.setDatabaseConnection(new Database(getActivity().getApplicationContext()));
+        mPresenter.setStrings(new Strings(getActivity().getApplicationContext()));
         mBind.setPresenter(mPresenter);
         mHandlerThread = new HandlerThread("PacketHandler");
         mHandlerThread.start();

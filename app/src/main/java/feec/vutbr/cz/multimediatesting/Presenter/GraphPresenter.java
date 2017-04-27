@@ -3,6 +3,7 @@ package feec.vutbr.cz.multimediatesting.Presenter;
 import android.support.annotation.NonNull;
 import feec.vutbr.cz.multimediatesting.Contract.GraphActivityContract;
 import feec.vutbr.cz.multimediatesting.Factory.PresenterFactory;
+import feec.vutbr.cz.multimediatesting.Model.Strings;
 
 import java.util.Map;
 
@@ -10,6 +11,7 @@ public class GraphPresenter implements GraphActivityContract.Presenter {
 
     private GraphActivityContract.View mView;
     private GraphActivityContract.Database mModel;
+    private GraphActivityContract.Strings mStrings;
     private long mId;
 
     private Map<String, String> mInfo;
@@ -26,6 +28,7 @@ public class GraphPresenter implements GraphActivityContract.Presenter {
         mModel.close();
         mView = null;
         mModel = null;
+        mStrings = null;
     }
 
     @Override
@@ -65,7 +68,7 @@ public class GraphPresenter implements GraphActivityContract.Presenter {
     }
 
     private void showError() {
-        mView.showToast("This measurement no longer exist.");
+        mView.showToast(mStrings.getString(Strings.NON_EXISTANT_MEASURE));
         mView.closeView();
     }
 
@@ -97,6 +100,12 @@ public class GraphPresenter implements GraphActivityContract.Presenter {
             }
         }
     }
+
+    @Override
+    public void setStrings(GraphActivityContract.Strings strings) {
+
+    }
+
 
 
     public static class Factory implements PresenterFactory<GraphPresenter> {

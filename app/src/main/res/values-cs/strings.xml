@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Multimedia Testing</string>
+    <string name="action_settings">Nastavení</string>
+    <string name="button_start">Spustit měření</string>
+    <string name="connection_success">Úspěšně připojeno…</string>
+    <string name="saving_results">Ukládání výsledků…</string>
+    <string name="done">Hotovo</string>
+    <string name="sent">Odesláno</string>
+    <string name="received">Přijato</string>
+    <string name="title_activity_settings">Nastavení</string>
+    <string name="text_settings_packet_size">Velikost paketu (1 – 1024)</string>
+    <string name="text_settings_server_address">Adresa serveru</string>
+    <string name="text_settings_packet_count">Počet paketů (1 – 1000)</string>
+    <string name="button_save">Uložit výsledky</string>
+    <string name="button_result">Zobrazit výsledky</string>
+    <string name="title_activity_history">Historie</string>
+    <string name="action_history">Historie</string>
+    <string name="empty_text"></string>
+    <string name="title_activity_graph">Výsledky</string>
+    <string name="info_graph_fragment_name">Informace</string>
+    <string name="delay_graph_fragment_name">Odezva</string>
+    <string name="jitter_graph_fragment_name">Jitter</string>
+    <string name="database_info_date">Datum</string>
+    <string name="database_info_connection_type">Typ připojení</string>
+    <string name="database_info_technlogy">Technologie</string>
+    <string name="database_info_operator">Operátor</string>
+    <string name="database_info_ssid">SSID</string>
+    <string name="database_info_packet_loss">Ztrátovost</string>
+    <string name="database_type_mobile">Mobilní</string>
+    <string name="database_type_wifi">Wi-Fi</string>
+    <string name="database_type_other">Jiné</string>
+    <string name="database_type_unknown">Neznámý</string>
+    <string name="file_cannot_write">Nelze zapisovat do externího uložiště</string>
+    <string name="file_cannot_create_folder">Nelze vytvořit složku</string>
+    <string name="database_packet_seq_num">Sekvenční číslo</string>
+    <string name="database_packet_time_sent">Časové razítko odeslání</string>
+    <string name="database_packet_time_received">Časové razítko přijetí</string>
+    <string name="database_packet_delay">Zpoždění</string>
+    <string name="database_packet_jitter">Jitter</string>
+    <string name="file_invalid_name">Neplatný název souboru</string>
+    <string name="file_invalid_data">Neplatná data</string>
+    <string name="file_info_export">Probíhá export souboru…</string>
+    <string name="graph_measure_non_existant">Toto měření neexistuje</string>
+</resources>
